@@ -27,6 +27,9 @@ export default class Vpn extends Component {
      handaleConection () {
           this.setState({ currentState: !currentState });
      }
+     renderServer() {
+          
+     }
      render() {
           const { connect, dotes, uppercase, imageStyle, server } = Styles;
           const { connected } = this.state.currentState;
