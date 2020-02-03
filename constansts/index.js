@@ -1,3 +1,4 @@
 import * as theme from './theme'
+import {icons,background} from './images'
 
-export { theme }
+export { theme, icons, background }
