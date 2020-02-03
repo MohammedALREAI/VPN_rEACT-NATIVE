@@ -23,12 +23,26 @@ const backgrounds = [
      },
 ]
 export default class Vpn extends Component {
-     state = { currentState: false }
+     state = {
+          currentState: false,
+          automatic: {
+               name: "Automatic",
+               icon:icons.automatic
+          }
+     }
      handaleConection () {
           this.setState({ currentState: !currentState });
      }
      renderServer() {
-          
+          const { name, icon } = this.state.automatic;
+          return (
+
+               <Block flex={false} row center middle>
+                    <Image source={} style={automatic}  />
+               <Text center margin={[0,10,0,20]}>{name}</Text>
+               <Image source={} style={icons.dropdown}  />
+               </Block>
+          )
      }
      render() {
           const { connect, dotes, uppercase, imageStyle, server } = Styles;
