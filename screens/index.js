@@ -1,4 +1,4 @@
-import VPN from './Vpn'
+import VPN from './VPN'
 import Welcome from './Welcome'
 
 export {VPN,Welcome};

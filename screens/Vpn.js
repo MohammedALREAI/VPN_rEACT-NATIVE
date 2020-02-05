@@ -1,143 +1,184 @@
-import React, { Component } from 'react'
-import { StyleSheet, Image } from 'react-native'
-import { Block, Text, Button, Utils } from 'expo-ui-kit'
-import { icons } from "../constansts/images"
+import React, { Component } from "react";
+import { Image, Modal, StyleSheet, ScrollView } from "react-native";
+import { Block, Button, Text, Utils } from "expo-ui-kit";
 
-const { theme, rgba } = Utils;
-const { SIZE, COLORS } = theme;
-const backgrounds = [
-     {
-          title: "secured ,forever.",
-          img=background.welcome,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-     {
-          title: "secured ,forever.",
-          img=background.encrypted,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-     {
-          title: "privacy is secure.",
-          img=background.privacy,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-]
-export default class Vpn extends Component {
-     state = {
-          currentState: false,
-          automatic: {
-               name: "Automatic",
-               icon:icons.automatic
-          }
-     }
-     handaleConection () {
-          this.setState({ currentState: !currentState });
-     }
-     renderServer() {
-          const { name, icon } = this.state.automatic;
-          return (
+// constants
+import { images, theme, servers } from "../constants";
+const { icons } = images;
 
-               <Block flex={false} row center middle>
-                    <Image source={} style={automatic}  />
-               <Text center margin={[0,10,0,20]}>{name}</Text>
-               <Image source={} style={icons.dropdown}  />
-               </Block>
-          )
-     }
-     render() {
-          const { connect, dotes, uppercase, imageStyle, server } = Styles;
-          const { connected } = this.state.currentState;
+// theme
+const { rgba } = Utils;
+const { SIZES, COLORS } = theme;
 
-          return (
-               <Block safe center>
-                    <Block flex={false} padding={[20, 2]}>
+export default class VPN extends Component {
+  state = {
+    connected: false,
+    server: null,
+    show: false,
+    automatic: {
+      name: "Automatic",
+      icon: icons.automatic
+    }
+  };
 
-                         <Text semibold title>Vpn</Text>
-                    </Block>
+  handleConnect() {
+    const { connected } = this.state;
+    this.setState({ connected: !connected });
+  }
 
+  handleServer(server) {
+    this.setState({ server, connected: false, show: false });
+  }
 
-                         <Block center middle>
-                         <Block flex={false}
-                              row
-                              white
-                              center
-                              shadow
-                              radius={SIZES.base * 2}
-                              padding={[SIZES.base, SIZES.padding]}>
+  renderServer() {
+    const { server, automatic } = this.state;
+    const connection = server || automatic;
 
-                              <Button onPress={}  >
-                                   <Text subtitle gray semibold style={connect} >
-                                        {connected? " Disconnected" : "Connected"}
-                                   </Text>
+    return (
+      <Block flex={false} row center middle>
+        <Image source={connection.icon} />
+        <Text margin={[0, 10, 0, 20]}>{connection.name}</Text>
+        <Image source={icons.dropdown} />
+      </Block>
+    );
+  }
 
-                              </Button>
-                              <Block radius={10}
-                                   color={connected ? COLORS.success : rgba(COLORS.gray,0.5)}
-                                   style={dotes} />
-                              </Block>
+  renderServers() {
+    const { show, server, automatic } = this.state;
+    const connection = server || automatic;
 
-                    </Block>
-                         <Block center middle>
-                         <Image
-                              style={imageStyle}
-                              source={icons[connected ? "online" : "offline"]}
-                         />
-                         <Button outline={} margin={[10, 2]} style={!connected} onPress={this.handaleConection()} >
-                              <Text
-                                   margin={[SIZES.padding/2.0]}
-                                   white
-                                        caption
-                                        center
-                                        bold
-                                   style={uppercase}>
-                                   {connected ? " Disconnected" : "Connected Now"}</Text>
-                         </Button>
-
-
-
-                         </Block>
-
+    return (
+      <Modal visible={show} animationType="fade" transparent>
+        <Block bottom color={rgba(COLORS.gray, 0.2)}>
+          <Block flex={false} white middle padding={[SIZES.padding, 0]}>
+            <Text subtitle center gray>
+              Pick your Server
+            </Text>
+            <ScrollView>
+              {servers.map(item => {
+                const isConnected = connection.name === item.name;
+                const isChecked = icons[isConnected ? "checked" : "unchecked"];
+                return (
+                  <Button
+                    transparent
+                    key={`server-${item.name}`}
+                    onPress={() => this.handleServer(item)}
+                  >
                     <Block
-                         center
-                         shadow
-                         middle
-                         flex={false}
-                         style={server}
-                         white>
-                         <Button transparent>
-                              <Text>Server</Text>
-
-                         </Button>
-
+                      flex={false}
+                      row
+                      center
+                      space="between"
+                      margin={[SIZES.padding, SIZES.padding]}
+                    >
+                      <Block flex={false} row center>
+                        <Image source={item.icon} />
+                        <Text padding={[0, SIZES.h3]}>{item.name}</Text>
+                      </Block>
+                      <Image source={isChecked} />
                     </Block>
+                  </Button>
+                );
+              })}
+            </ScrollView>
+          </Block>
+        </Block>
+      </Modal>
+    );
+  }
 
-               </Block >
+  render() {
+    const { connected } = this.state;
 
-          )
-     }
+    return (
+      <Block safe center space="between">
+        <Block flex={false} padding={[SIZES.h3, 0]}>
+          <Text title semibold>
+            VPN
+          </Text>
+        </Block>
+
+        <Block center flex={false}>
+          <Block
+            flex={false}
+            row
+            center
+            middle
+            white
+            shadow
+            radius={SIZES.radius}
+            padding={[SIZES.base, SIZES.padding]}
+          >
+            <Text theme={theme} subtitle semibold gray height={SIZES.h3}>
+              {connected ? "Connected" : "Disconnected"}
+            </Text>
+            <Block
+              flex={false}
+              radius={SIZES.base}
+              style={styles.status}
+              color={connected ? COLORS.success : rgba(COLORS.gray, 0.5)}
+            />
+          </Block>
+
+          <Image
+            style={styles.image}
+            source={icons[connected ? "online" : "offline"]}
+          />
+
+          <Button
+            theme={theme}
+            outlined={connected}
+            style={[styles.connect, connected && styles.connected]}
+            onPress={() => this.handleConnect()}
+          >
+            <Text
+              caption
+              center
+              bold
+              white={!connected}
+              margin={[SIZES.padding / 2, 0]}
+            >
+              {connected ? "DISCONNECT" : "CONNECT NOW"}
+            </Text>
+          </Button>
+        </Block>
+
+        <Block flex={false} middle white shadow style={styles.servers}>
+          <Button transparent onPress={() => this.setState({ show: true })}>
+            {this.renderServer()}
+          </Button>
+        </Block>
+        {this.renderServers()}
+      </Block>
+    );
+  }
 }
+
 const styles = StyleSheet.create({
-     connect: {
-          width: SIZES.width / 2,
-          textTransform: "     "
-
-
-     }, imageStyle: {
-          width: 180,
-          height: 180,
-          marginVertical: 20
-
-     },
-     dotes: {
-          width: 8,
-          height: 8
-     },
-     uppercase: {
-          textTransform:"uppercase"
-     },
-     server: {
-          width: SIZES.width,
-          height:SIZES.base*9
-
-     }
-})
+  connect: {
+    width: SIZES.width / 2
+  },
+  connected: {
+    borderColor: COLORS.black
+  },
+  image: {
+    width: 180,
+    height: 180,
+    marginVertical: 20
+  },
+  status: {
+    width: SIZES.base,
+    height: SIZES.base,
+    marginLeft: SIZES.small
+  },
+  servers: {
+    width: SIZES.width,
+    height: SIZES.base * 9,
+    shadowOffset: {
+      width: 0,
+      height: -5
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: SIZES.base / 2
+  }
+});

@@ -1,105 +1,173 @@
-import React, { Component } from 'react'
-import { StyleSheet, ScrollView } from 'react-native'
-import { Block, Text, Button, Utils } from 'expo-ui-kit'
-import background from "../constansts/images"
+import React, { Component } from "react";
+import { Animated, Image, ScrollView, StyleSheet } from "react-native";
+import { Block, Button, Text, Utils } from "expo-ui-kit";
 
-const { theme, rgba } = Utils;
-const { SIZE, COLORS } = theme;
+// constants
+import { images, theme } from "../constants";
+const { background } = images;
+
+// theme
+const { rgba } = Utils;
+const { SIZES, COLORS } = theme;
+
 const backgrounds = [
-     {
-          title: "secured ,forever.",
-          img=background.welcome,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-     {
-          title: "secured ,forever.",
-          img=background.encrypted,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-     {
-          title: "privacy is secure.",
-          img=background.privacy,
-          description: "Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator"
-     },
-]
+  {
+    title: "Secured, forever.",
+    description:
+      "Curabitur lobortis id lorem id bibendum. Ut id consectetur magna. Quisque volutpat augue enim, pulvinar lobortis.",
+    img: background.welcome
+  },
+  {
+    title: "Encrypted, forever.",
+    description:
+      "Curabitur lobortis id lorem id bibendum. Ut id consectetur magna. Quisque volutpat augue enim, pulvinar lobortis.",
+    img: background.encrypted
+  },
+  {
+    title: "Privacy, forever.",
+    description:
+      "Curabitur lobortis id lorem id bibendum. Ut id consectetur magna. Quisque volutpat augue enim, pulvinar lobortis.",
+    img: background.privacy
+  }
+];
+
 export default class Welcome extends Component {
+  scrollX = new Animated.Value(0);
 
-     renderImage = () => (
-          <ScrollView horizontal scrollEnabled showsHorizontalScrollIndicator={false}
-               snapToAlignment="center"
-               scrollEventThrottle={16}
-               decelerationRate={0}
-          >{backgrounds.map((item, index) => (
+  state = {
+    slideIndex: 0
+  };
 
-               <Block key={`img-${index}`} center style={{ width: SIZE.width }}>
+  componentDidMount() {
+    this.scrollX.addListener(({ value }) => {
+      this.setState({ slideIndex: Math.floor(value / SIZES.width) });
+    });
+  }
 
-                    <Image
-                         style={{ width: SIZE.width / 1.5, height: SIZE.height }}
-                         source={item.img}
-                         resizeMode="center"
-                    />
-               </Block>
-          ))}
-
-
-          </ScrollView>
-
-     );
-     renderDots = () => (
-          <Block flex={false} row center middle margin={[20, 0, 40, 0]}>
-               <Block
-                    flex={false}
-                    gray margin={[0, 6]}
-                    radius={8}
-                    style={{ width: 8, height: 8 }}
-                    color={COLORS.gray}
-               />
-               <Block
-                    flex={false}
-                    gray margin={[0, 6]}
-                    radius={3}
-                    style={{ width: 8, height: 6 }}
-                    color={rgba(COLORS.gray, 0.5)}
-               />
-               <Block
-                    flex={false}
-                    gray margin={[0, 6]}
-                    radius={3}
-                    style={{ width: 6, height: 6 }}
-                    color={rgba(COLORS.gray, 0.5)}
-               />
+  renderImages() {
+    return (
+      <ScrollView
+        horizontal
+        pagingEnabled
+        scrollEnabled
+        decelerationRate={0}
+        scrollEventThrottle={16}
+        snapToAlignment="center"
+        showsHorizontalScrollIndicator={false}
+        onScroll={Animated.event([
+          { nativeEvent: { contentOffset: { x: this.scrollX } } }
+        ])}
+      >
+        {backgrounds.map((item, index) => (
+          <Block
+            center
+            bottom
+            key={`img-${index}`}
+            style={{ width: SIZES.width }}
+          >
+            <Image
+              source={item.img}
+              resizeMode="center"
+              style={{
+                width: SIZES.width / 1.5,
+                height: "100%"
+              }}
+            />
           </Block>
-     )
-     render() {
-          //we want make as map
-          const { navigation } = this.props;
+        ))}
+      </ScrollView>
+    );
+  }
+
+  renderDots() {
+    const dotPosition = Animated.divide(this.scrollX, SIZES.width);
+
+    return (
+      <Block
+        flex={false}
+        row
+        center
+        middle
+        margin={[SIZES.padding, 0, SIZES.padding * 2, 0]}
+      >
+        {backgrounds.map((item, index) => {
+          const opacity = dotPosition.interpolate({
+            inputRange: [index - 1, index, index + 1],
+            outputRange: [0.3, 1, 0.3],
+            extrapolate: "clamp"
+          });
+
           return (
-               <Block safe>
-                    <Block center middle>
-                         {this.renderImage}
+            <Block
+              gray
+              animated
+              flex={false}
+              key={`dot-${index}`}
+              radius={SIZES.small}
+              margin={[0, SIZES.small / 2]}
+              style={[styles.dot, { opacity }]}
+            />
+          );
+        })}
+      </Block>
+    );
+  }
 
+  renderTexts() {
+    const { slideIndex } = this.state;
+    const background = backgrounds[slideIndex];
 
-                    </Block>
+    return (
+      <React.Fragment>
+        <Text animated h3 semibold theme={theme}>
+          {background && background.title}
+        </Text>
+        <Text
+          animated
+          theme={theme}
+          center
+          caption
+          gray
+          margin={[SIZES.small, 0]}
+        >
+          {background && background.description}
+        </Text>
+      </React.Fragment>
+    );
+  }
 
-                    <Block center middle margin={60}>
-                         <Text h1 semibold  > secured ,forever. </Text>
-                         <Text h3 gray margin={[10, 0]} center caption >Software: React-Native, Expo.io, SketchApp, VSCode, iOS Simulator
-  </Text>
-                         {this.renderDots}
+  render() {
+    const { navigation } = this.props;
 
-                    </Block>
-                    <Block flex={false} center bottom>
-                         <Button primary
-
-                              onPress={() => navigation.navigate("VPN")}
-                              style={{ borderRadius: 30 }}>
-                              <Text white center margin={[6, 26]}>
-                                   Get start
-                    </Text>
-                         </Button>
-
-                    </Block>
-               </Block>
-          )
-     }
+    return (
+      <Block safe>
+        <Block center middle>
+          {this.renderImages()}
+        </Block>
+        <Block flex={false} center bottom margin={60}>
+          {this.renderTexts()}
+          {this.renderDots()}
+          <Button
+            primary
+            theme={theme}
+            onPress={() => navigation.navigate("VPN")}
+          >
+            <Text
+              center
+              white
+              caption
+              bold
+              margin={[SIZES.padding / 2, SIZES.padding * 2]}
+            >
+              GET STARTED
+            </Text>
+          </Button>
+        </Block>
+      </Block>
+    );
+  }
 }
+
+const styles = StyleSheet.create({
+  dot: { width: SIZES.base, height: SIZES.base }
+});

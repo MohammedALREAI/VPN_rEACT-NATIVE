@@ -1,4 +1,5 @@
-import * as theme from './theme'
-import {icons,background} from './images'
+import images from "./images";
+import theme from "./theme";
+import servers from "./servers";
 
-export { theme, icons, background }
+export { images, theme, servers };
